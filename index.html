@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pitch Tracker — Cumulative Web Inc</title>
+<meta name="description" content="Curator outreach pipeline with win-rate memory for the CWI catalog. Every record truth-labeled.">
+<style>
+:root{--gold:#d4a72c;--gold-d:#a67c1a;--ink:#141414;--paper:#faf8f2;--card:#ffffff;--muted:#6b6b6b;--green:#1e7d3a;--amber:#b8860b;--red:#b3271e;--blue:#1d4fd7;--line:#e8e2d4}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
+header{background:#101010;color:#fff;padding:18px 16px 14px;border-bottom:4px solid var(--gold)}
+.brand{display:flex;align-items:center;gap:12px;max-width:860px;margin:0 auto}
+.crown{width:44px;height:44px;flex:none}
+header h1{margin:0;font-size:1.35rem;letter-spacing:.02em}
+header p{margin:2px 0 0;color:#c9b98a;font-size:.85rem}
+main{max-width:860px;margin:0 auto;padding:16px 14px 48px}
+.badge{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:999px;text-transform:uppercase}
+.b-verified{background:#e3f2e6;color:var(--green);border:1px solid var(--green)}
+.b-unverified{background:#fff4d6;color:#7a5c00;border:1px solid var(--amber)}
+.b-user{background:#e8eefc;color:var(--blue);border:1px solid var(--blue)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center}
+.stat b{display:block;font-size:1.35rem}
+.stat span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0}
+h2{margin:0 0 8px;font-size:1.05rem}
+details{border-top:1px solid var(--line)}
+details:first-of-type{border-top:none}
+summary{cursor:pointer;padding:12px 4px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary .count{background:#f0ead9;border-radius:999px;font-size:.75rem;padding:1px 9px;color:var(--ink)}
+.card{border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:8px;padding:10px 12px;margin:8px 0;background:#fff}
+.card h3{margin:0 0 4px;font-size:.95rem}
+.card .meta{font-size:.82rem;color:var(--muted);margin:2px 0}
+.card .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.card .actions button,.btn{font-size:.8rem;padding:6px 12px;border-radius:8px;border:1px solid var(--gold-d);background:#fff;color:var(--ink);cursor:pointer}
+.card .actions button:hover,.btn:hover{background:#fdf6e3}
+.nudge-overdue{border-left-color:var(--red)}
+.nudge-soon{border-left-color:var(--amber)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+tr.win td:first-child{font-weight:700}
+.bar{height:8px;background:#eee;border-radius:4px;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--gold)}
+form.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form.grid label{font-size:.78rem;color:var(--muted);display:block}
+form.grid input,form.grid select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:.9rem;background:#fff;color:var(--ink)}
+.full{grid-column:1/-1}
+.honest{background:#101010;color:#e8e2d4;border-radius:12px;padding:14px}
+.honest h2{color:var(--gold)}
+.honest li{margin:6px 0;font-size:.88rem}
+footer{text-align:center;color:var(--muted);font-size:.78rem;margin:24px 0}
+.hidden{display:none}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}form.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg class="crown" viewBox="0 0 48 48" aria-label="CWI crown" role="img">
+      <path d="M6 36 L4 16 L14 24 L24 8 L34 24 L44 16 L42 36 Z" fill="#d4a72c"/>
+      <rect x="6" y="36" width="36" height="5" rx="2" fill="#d4a72c"/>
+      <circle cx="24" cy="26" r="4" fill="#101010"/>
+    </svg>
+    <div>
+      <h1>Pitch Tracker</h1>
+      <p>Cumulative Web Inc — curator outreach pipeline · win-rate memory</p>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <h2>Pipeline</h2>
+    <div id="pipeline"></div>
+  </section>
+
+  <section>
+    <h2>Follow-ups due</h2>
+    <div id="nudges"></div>
+  </section>
+
+  <section>
+    <h2>Curator scoreboard <span style="font-size:.75rem;color:var(--muted)">highest verified win-rate first</span></h2>
+    <div id="scoreboard" style="overflow-x:auto"></div>
+  </section>
+
+  <section>
+    <h2>Log a pitch</h2>
+    <form class="grid" id="pitchForm">
+      <label>Curator / venue<input name="curator" required maxlength="80"></label>
+      <label>Track<input name="track" required maxlength="80" value="That Boy Hi Hat — Zooted Zone"></label>
+      <label>Venue (playlist / press / business)<input name="venue" maxlength="80"></label>
+      <label>Channel<select name="channel"><option>curator outreach</option><option>email</option><option>submission form</option><option>DM</option><option>NEEDLE DROP email</option><option>direct outreach</option></select></label>
+      <label>Status<select name="status"><option value="queued">Queued</option><option value="sent" selected>Sent — awaiting reply</option><option value="replied">Replied</option><option value="placed">Placed</option><option value="holding">Holding</option><option value="dead">Dead / lost</option></select></label>
+      <label>Date pitched<input name="date_pitched" type="date" required></label>
+      <label class="full">Notes<textarea name="notes" rows="2" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px"></textarea></label>
+      <div class="full"><button class="btn" type="submit">Save pitch (device-local, labeled USER-ENTERED)</button></div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Export</h2>
+    <p style="font-size:.85rem;color:var(--muted)">Download the full record — seed pitches plus anything you logged. Seed records keep their VERIFIED / UNVERIFIED labels; yours keep USER-ENTERED.</p>
+    <button class="btn" id="exportBtn">Download pitches.json</button>
+    <a class="btn" href="pitches.json" style="text-decoration:none;display:inline-block;margin-left:8px">Machine-readable seed</a>
+  </section>
+
+  <section class="honest">
+    <h2>Honest limits</h2>
+    <ul>
+      <li>Seed pitches come from CWI's own 2026-09-14 outreach wave and CWI's Spotify rescan log (2026-09-16 → 2026-10-01). VERIFIED means a rescan confirmed the placement; UNVERIFIED means the pitch is real but the outcome is unknown.</li>
+      <li>Win rates score <em>verified outcomes only</em> — pending pitches never inflate a curator's rate, and they never drag it down.</li>
+      <li>Positions shown are internal ops data. Per Lansky's rule they are never quoted in promo copy.</li>
+      <li><strong>Do-not-resubmit</strong> flags are binding: Hype Off Life acknowledged the 9/14 form — no second send.</li>
+      <li>Anything you log here lives on this device only (localStorage), labeled USER-ENTERED, never presented as verified. The machine-readable seed is at <code>pitches.json</code> (schema <code>cwi.pitch-record/1.0</code>).</li>
+      <li>Placements go stale: the pipeline schedules a re-verify nudge 30 days after each placement's last check. An un-reverified placement is overdue, not a win.</li>
+    </ul>
+  </section>
+</main>
+<footer>© 2026 Cumulative Web Inc · Pitch Tracker v1.0.0 · schema cwi.pitch-record/1.0<br>Engine: pitch.js (zero dependencies)</footer>
+<script src="pitch.js"></script>
+<script>
+(function(){
+  var PT = window.PitchTracker;
+  var seed = [];
+  var LS_KEY = 'cwi-pitch-tracker-local-v1';
+
+  function readLocal(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e){ return []; } }
+  function writeLocal(a){ try { localStorage.setItem(LS_KEY, JSON.stringify(a)); } catch(e){} }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function badge(t){ var cls = t==='VERIFIED'?'b-verified':(t==='UNVERIFIED'?'b-unverified':'b-user'); return '<span class="badge '+cls+'">'+esc(t)+'</span>'; }
+
+  function all(){
+    var local = readLocal().map(function(p){ p.truth = 'USER-ENTERED'; return p; });
+    return PT.mergeLocal(seed, local);
+  }
+
+  function render(){
+    var rows = all(), today = PT.todayISO();
+    var f = PT.funnel(rows);
+    document.getElementById('stats').innerHTML =
+      '<div class="stat"><b>'+f.total+'</b><span>pitches</span></div>'+
+      '<div class="stat"><b>'+f.wins+'</b><span>wins</span></div>'+
+      '<div class="stat"><b>'+Math.round(f.win_rate*100)+'%</b><span>win rate</span></div>'+
+      '<div class="stat"><b>'+f.open+'</b><span>open</span></div>';
+
+    // Pipeline grouped by status
+    var groups = {};
+    PT.STATUSES.forEach(function(s){ groups[s]=[]; });
+    rows.forEach(function(p){ (groups[p.status]||groups.sent).push(p); });
+    var q = PT.parseDeepLink(location.search);
+    var openStatus = q.status && PT.STATUS_LABELS[q.status] ? q.status : null;
+    document.getElementById('pipeline').innerHTML = PT.STATUSES.map(function(s){
+      var cards = groups[s].map(cardHTML).join('') || '<p style="color:var(--muted);font-size:.85rem">No pitches here.</p>';
+      return '<details'+(openStatus===s?' open':'')+'><summary>'+PT.STATUS_LABELS[s]+' <span class="count">'+groups[s].length+'</span></summary>'+cards+'</details>';
+    }).join('');
+
+    // Nudges
+    var acts = rows.map(function(p){ return {p:p, a:PT.nudgeAction(p, today)}; })
+      .filter(function(x){ return x.a.state==='OVERDUE' || x.a.state==='DUE_SOON'; })
+      .sort(function(x,y){ return (x.a.due<y.a.due?-1:1); });
+    document.getElementById('nudges').innerHTML = acts.length ? acts.map(function(x){
+      var p=x.p, cls=x.a.state==='OVERDUE'?'nudge-overdue':'nudge-soon';
+      return '<div class="card '+cls+'"><h3>'+esc(p.curator)+' — '+esc(p.track)+'</h3>'+
+        '<div class="meta"><b>'+x.a.state.replace('_',' ')+'</b> · '+esc(x.a.kind)+' · due '+esc(x.a.due||'—')+' '+badge(p.truth)+'</div>'+
+        '<div class="meta">Suggested: '+esc(x.a.copy)+'</div>'+
+        '<div class="actions"><button data-copy="'+esc(x.a.copy)+'" class="copyBtn">Copy nudge text</button></div></div>';
+    }).join('') : '<p style="color:var(--muted);font-size:.85rem">Nothing due. Every open pitch is within its follow-up window.</p>';
+
+    // Scoreboard
+    var sb = PT.scoreboard(rows);
+    document.getElementById('scoreboard').innerHTML = '<table><tr><th>Curator</th><th>Pitches</th><th>Wins</th><th>Win rate</th></tr>'+
+      sb.map(function(r){
+        return '<tr class="'+(r.wins?'win':'')+'"><td>'+esc(r.curator)+'</td><td>'+r.pitches+'</td><td>'+r.wins+'</td>'+
+        '<td><div class="bar"><i style="width:'+Math.round(r.win_rate*100)+'%"></i></div><small>'+Math.round(r.win_rate*100)+'%</small></td></tr>';
+      }).join('')+'</table>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('.copyBtn'), function(b){
+      b.onclick = function(){ navigator.clipboard && navigator.clipboard.writeText(b.getAttribute('data-copy')); b.textContent='Copied'; setTimeout(function(){b.textContent='Copy nudge text';},1500); };
+    });
+
+    // Deep link curator highlight
+    if (q.curator){
+      var slug = PT.curatorSlug(q.curator);
+      Array.prototype.forEach.call(document.querySelectorAll('.card h3'), function(h){
+        if (PT.curatorSlug(h.textContent) === slug){ h.closest('.card').style.boxShadow='0 0 0 2px var(--gold)'; h.closest('details') && (h.closest('details').open = true); }
+      });
+    }
+  }
+
+  function cardHTML(p){
+    return '<div class="card"><h3>'+esc(p.curator)+' — '+esc(p.track)+'</h3>'+
+      '<div class="meta">'+esc(p.venue||'')+(p.position?' · #'+esc(p.position):'')+' · pitched '+esc(p.date_pitched)+'</div>'+
+      (p.notes?'<div class="meta">'+esc(p.notes)+'</div>':'')+
+      (p.do_not_resubmit?'<div class="meta"><b style="color:var(--red)">DO NOT RESUBMIT</b></div>':'')+
+      '<div class="meta">'+badge(p.truth)+(p.evidence?' · <span title="evidence">'+esc(p.evidence)+'</span>':'')+(p.verified_on?' · verified '+esc(p.verified_on):'')+'</div>'+
+      '</div>';
+  }
+
+  document.getElementById('pitchForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var fd = new FormData(e.target);
+    var p = { curator:fd.get('curator'), track:fd.get('track'), venue:fd.get('venue'), channel:fd.get('channel'),
+      status:fd.get('status'), date_pitched:fd.get('date_pitched'), notes:fd.get('notes') };
+    p = PT.normalizePitch(p);
+    p.truth = 'USER-ENTERED';
+    var v = PT.validatePitch(p);
+    if (!v.ok){ alert('Fix: '+v.errors.join('; ')); return; }
+    var local = readLocal(); local.push(p); writeLocal(local);
+    e.target.reset(); render();
+  });
+
+  document.getElementById('exportBtn').onclick = function(){
+    var blob = new Blob([JSON.stringify({schema:'cwi.pitch-feed/1.0', generated:PT.todayISO(), pitches:all()}, null, 2)], {type:'application/json'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pitches-export.json'; a.click();
+  };
+
+  fetch('pitches.json').then(function(r){ return r.json(); }).then(function(j){ seed = j.pitches || []; render(); })
+    .catch(function(){ render(); });
+})();
+</script>
+</body>
+</html>
